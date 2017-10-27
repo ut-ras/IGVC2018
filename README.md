@@ -12,7 +12,7 @@ Then clone our repo into the src folder:
 
 ```
   cd ~/catkin_ws/src
-  git clone git@github.com:ut-ras/IGVC2018.git
+  git clone https://github.com/ut-ras/IGVC2018.git
 ```
 
 It isn't necessary to run the codebase but if you want to be able to edit the code on the microcontroller, you'll need to [install the Energia IDE](http://energia.nu/download/)
