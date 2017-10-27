@@ -1,0 +1,18 @@
+<package format="2">
+    <name>motor</name>
+    <version>0.0.1</version>
+    <description>
+        Rosserial -> UART -> TM4C -> PWM -> Victor 885s -> motors
+    </description>
+    <maintainer email="josephryan@utexas.edu">Pineapple</maintainer>
+    <license>MIT</license>
+    <url type="website">https://github.com/ut-ras/IGVC2018</url>
+    <author email="josephryan@utexas.edu">Pineapple</author>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <depend>rospy</depend>
+    <depend>rosserial_python</depend>
+    <depend>std_msgs</depend>
+
+</package>
