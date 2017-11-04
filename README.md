@@ -43,11 +43,11 @@ roslaunch motor manual.launch
 
 To install dependencies for the vision package
 ```
-**replace lunar with the ros distro on your system**
-sudo apt-get install ros-lunar-cv-bridge
-sudo apt-get install ros-lunar-image-transport
+sudo apt install ros-kinetic-cv-bridge
+sudo apt install ros-kinetic-image-transport
 cd ~/catkin_ws/src
 git clone https://github.com/OTL/cv_camera.git
+cd ..
 catkin_make
 catkin_make install
 source install/setup.bash
