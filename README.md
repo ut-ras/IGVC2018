@@ -40,3 +40,24 @@ To check if it works, run the manual control launch file:
 ```
 roslaunch motor manual.launch
 ```
+
+To install dependencies for the vision package
+```
+**replace lunar with the ros distro on your system**
+sudo apt-get install ros-lunar-cv-bridge
+sudo apt-get install ros-lunar-image-transport
+cd ~/catkin_ws/src
+git clone https://github.com/OTL/cv_camera.git
+catkin_make
+catkin_make install
+source install/setup.bash
+**replace the device_path parameter in the launch file with the correct id for your system**
+```
+
+To run the vision package run each of the following in multiple terminal prompts
+```
+roscore
+roslaunch vision camerafeed.launch
+rosrun rviz rviz
+```
+On rviz add an image topic in the bar on the right and select the camera feed in the dropdown menu
