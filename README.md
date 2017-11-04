@@ -18,7 +18,8 @@ Then clone our repo into the src folder:
 It isn't necessary to run the codebase but if you want to be able to edit the code on the microcontroller, you'll need to [install the Energia IDE](http://energia.nu/download/)
 
 ```
-sudo apt install xboxdrv cd catkin_ws/src
+sudo apt install xboxdrv
+cd catkin_ws/src
 sudo apt install python-serial
 cd ~/catkin_ws/src
 git clone https://github.com/ros-drivers/rosserial.git
@@ -26,6 +27,7 @@ cd ..
 catkin_make
 catkin_make install
 source install/setup.bash
+source devel/setup.bash
 ```
 
 If you get Energia you'll need to build the libraries for it:
