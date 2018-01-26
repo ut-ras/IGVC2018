@@ -49,8 +49,7 @@ cd ~/catkin_ws/src
 git clone https://github.com/OTL/cv_camera.git
 cd ..
 catkin_make
-catkin_make install
-source install/setup.bash
+source devel/setup.bash
 **replace the device_path parameter in the launch file with the correct id for your system**
 ```
 
