@@ -55,7 +55,6 @@ source devel/setup.bash
 
 To run the vision package run each of the following in multiple terminal prompts
 ```
-roscore
 roslaunch vision camerafeed.launch
 rosrun rviz rviz
 ```
