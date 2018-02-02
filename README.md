@@ -12,10 +12,15 @@ Move_base: ```sudo apt-get install ros-kinetic-move-base```
 Run the following commands to setup your workspace:
 
 ``mkdir -p ~/mybot_ws/src  
+
 cd ~/mybot_ws/src  
+
 git clone -b simulation https://github.com/ut-ras/IGVC2018.git  
+
 cd ..  
+
 catkin_make  
+
 source devel/setup.bash``
 
 Check that you have sourced properly:
