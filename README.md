@@ -1,5 +1,5 @@
 # IGVC2018
-Let's get started with our Gazebo Simulation!
+##Let's get started with our Gazebo Simulation!
 
 Here's some packages you need to install aside from ROS/Gazebo:
 
