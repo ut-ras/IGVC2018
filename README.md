@@ -46,8 +46,8 @@ It would go inside: ~/mybot_ws/src/mybot_description/rviz
 Steps to use AMCL package:
 
 ```
-roslaunch mybot_gazebo mybot_world.launch\
-roslaunch mybot_navigation amcl_demo.launch\
+roslaunch mybot_gazebo mybot_world.launch
+roslaunch mybot_navigation amcl_demo.launch
 roslaunch mybot_description mybot_rviz_amcl.launch
 ```
 
