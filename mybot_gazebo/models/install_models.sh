@@ -1,0 +1,1 @@
+cp -r mygroundplane ~/.gazebo/models
