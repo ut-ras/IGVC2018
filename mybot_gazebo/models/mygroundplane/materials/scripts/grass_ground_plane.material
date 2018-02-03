@@ -11,7 +11,7 @@ material GrassPlane/Image
 
       texture_unit
       {
-        texture grass_lanes.png
+        texture IGVC_basic.png
       }
     }
   }

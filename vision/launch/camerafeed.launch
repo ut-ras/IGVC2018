@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="vision" name="hough_transform" type="detect.py" output="screen">
+		<param name="frame_id" value="camera2"/>
+	</node>
+</launch>

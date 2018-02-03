@@ -129,11 +129,21 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Alpha: 1
+      Class: rviz/Camera
+      Name: Camera
+      Visibility: true
+      Image Topic: /mybot/camera1/image_raw
+      Transport Hint: raw
+      Queue Size: 2
+      Unreliable: false
+      Overlay Alpha: 0.5
+      Zoom Factor: 1
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
