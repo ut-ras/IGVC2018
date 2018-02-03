@@ -1,6 +1,8 @@
 # IGVC2018
 ## Let's get started with our Gazebo Simulation!
 
+### Navigation (Scroll down for Vision)
+
 Here's some packages you need to install aside from ROS/Gazebo:
 
 Gmapping: ```sudo apt-get install ros-kinetic-slam-gmapping```\
@@ -58,3 +60,32 @@ roslaunch mybot_description mybot_rviz_amcl.launch
 ```
 
 Under Rviz tools at the top, click 2D Nav Goal then click and hold wherever you want!
+
+### Vision
+
+To test the visual processing within the simulation please create your workspace if you have not done so yet:
+
+```
+mkdir -p ~/mybot_ws/src
+cd ~/mybot_ws/src
+git clone -b simulation https://github.com/ut-ras/IGVC2018.git
+cd ..
+catkin_make
+```
+
+Next you'll want to edit your bashrc file: ```gedit ~/.bashrc```
+
+Scroll down to the very end and add the following:
+```
+source /opt/ros/kinetic/setup.bash
+source ~/mybot_ws/devel/setup.bash
+```
+Run the following launch files:
+
+```
+roslaunch mybot_gazebo igvc_world.launch
+roslaunch mybot_description mybot_rviz.launch
+roslaunch vision camerafeed.launch
+```
+
+And now you're set! Feel free to play around with the camera angles and other parameters. This is primarily for testing vision software only. No path planning or cmd_vel commands are currently being published.
