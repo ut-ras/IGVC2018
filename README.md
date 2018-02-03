@@ -17,7 +17,14 @@ cd ~/mybot_ws/src
 git clone -b simulation https://github.com/ut-ras/IGVC2018.git
 cd ..
 catkin_make
-source devel/setup.bash
+```
+
+Edit your bashrc file: ```gedit ~/.bashrc```
+
+Scroll down to the very end and add the following:
+```
+source /opt/ros/kinetic/setup.bash
+source ~/mybot_ws/devel/setup.bash
 ```
 
 Check that you have sourced properly:
@@ -36,7 +43,6 @@ Drive around until the map is deemed satisfactory…
 DOONT close the gazebo/rviz stuff yet:
 
 ```
-mkdir -p ~/mybot_ws/src/mybot_navigation/maps
 rosrun map_server map_saver -f ~/mybot_ws/src/mybot_navigation/maps/test_map
 ```
 
