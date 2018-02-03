@@ -79,7 +79,17 @@ Scroll down to the very end and add the following:
 ```
 source /opt/ros/kinetic/setup.bash
 source ~/mybot_ws/devel/setup.bash
+
+export GAZEBO_MODEL_PATH=${HOME}/.gazebo/models:${GAZEBO_MODEL_PATH}
+export GAZEBO_MODEL_PATH=${HOME}/mybot_ws/src/mybot_gazebo/models:$GAZEBO_MODEL_PATH
 ```
+
+We have to build our models within Gazebo. To do this, run the simple script in the models folder:
+```
+cd ~/mybot_ws/src/IGVC2018/mybot_gazebo/models
+sudo ./install_models.sh
+```
+
 Run the following launch files:
 
 ```
