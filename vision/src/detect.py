@@ -7,6 +7,62 @@ import cv2
 import numpy as np
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+import time
+
+# termination criteria
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+# checkerboard dimensions (defined by corners)
+# Must be asymmetrical
+cbrow = 7
+cbcol = 6
+
+# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+objp = np.zeros((cbrow*cbcol,3), np.float32)
+objp[:,:2] = np.mgrid[0:cbcol,0:cbrow].T.reshape(-1,2)
+
+# Arrays to store object points and image points from all the images.
+objpoints = [] # 3d point in real world space
+imgpoints = [] # 2d points in image plane.
+
+def calibrate_camera(image):
+    #last_time = time.time()
+    img = image
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
+    # Find the chess board corners
+    ret, corners = cv2.findChessboardCorners(gray, (cbcol,cbrow), None)
+    print(loop)
+
+    # If found, add object points, image points (after refining them)
+    if ret == True:
+        objpoints.append(objp)
+
+        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+        imgpoints.append(corners2)
+
+        # Draw and display the corners
+        img = cv2.drawChessboardCorners(img, (cbcol,cbrow), corners2, ret)
+
+    #print('Frame took {} seconds'.format(time.time() - last_time))
+    
+
+    return img
+
+def select_white(image):
+    # Keep a safe copy of the original image
+    original_image = image
+
+    # Convert image to HSL
+    processed_img = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+
+    # white color mask
+    lower = np.uint8([0,160,0])
+    upper = np.uint8([255,255,255])
+    white_mask = cv2.inRange(processed_img, lower, upper)
+
+    # return mask
+    return cv2.bitwise_and(original_image, original_image, mask = white_mask)
 
 ## Processes image and returns image with drawn lines
 #  @type image: Mat
@@ -14,19 +70,25 @@ from cv_bridge import CvBridge, CvBridgeError
 #  
 #  @return image with detected edges
 def process_img(image):
+    # Track frames per second
+    last_time = time.time()
+
     # Keep a safe copy of the original image
     original_image = image
+
+    # Retrieve image after applying white masking
+    white_img = select_white(image)
     
     # convert the image to Grayscale
-    processed_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray_img = cv2.cvtColor(white_img, cv2.COLOR_BGR2GRAY)
 
     # Edge detection: cv2.Canny(image to run detection, lower bound of intensity to ignore, upper bound of intensity to consider an edge)
-    edgeIntensityMin = 200
-    edgeIntensityMax = 300
-    processed_img = cv2.Canny(processed_img, threshold1 = edgeIntensityMin, threshold2 = edgeIntensityMax)
+    edgeIntensityMin = 100
+    edgeIntensityMax = 200
+    canny_img = cv2.Canny(gray_img, threshold1 = edgeIntensityMin, threshold2 = edgeIntensityMax)
     
     # Gaussian Blur: cv2.GaussianBlur(image to run blur on, kernel size, sigma)
-    processed_img = cv2.GaussianBlur(processed_img, (5,5), 0)
+    processed_img = cv2.GaussianBlur(canny_img, (5,5), 0)
 
     # Define a blank mask
     masking = np.zeros_like(processed_img)
@@ -37,7 +99,7 @@ def process_img(image):
     
     # Define points of the region of interest, in this case we defined a trapezoid for the lower half of the screen
     # It needs to be 32 bit for masking to work correctly
-    roi = np.array([[[cols/5, rows/2], [cols * 4/5, rows/2], [cols, rows], [0, rows]]], dtype = np.int32)
+    roi = np.array([[[0, rows/2], [cols, rows/2], [cols, rows], [0, rows]]], dtype = np.int32)
     
     # Actually draw the polygon now
     cv2.fillPoly(masking, roi, 255)
@@ -47,10 +109,13 @@ def process_img(image):
     processed_img = cv2.bitwise_and(processed_img, processed_img, mask=masking)
 
     # Hough Line Transforms
-    lines = cv2.HoughLinesP(processed_img, 1, np.pi/180, 180, 20, 15)
+    lines = cv2.HoughLinesP(processed_img, 1, np.pi/180, 180, np.array([]), 10, 20)
     
     # Draw the lines on the image
     draw_lines(original_image, lines)
+
+    # Print frame timestamp
+    print("This frame took {} seconds".format(time.time() - last_time))
 
     return original_image
 

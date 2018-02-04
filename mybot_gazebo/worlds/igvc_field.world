@@ -45,6 +45,10 @@
     </link>
   </model>
 
+    <include>
+      <uri>model://chessboard</uri>
+    </include>
+
     <!-- Global light source -->
     <include>
       <uri>model://sun</uri>
