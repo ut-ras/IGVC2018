@@ -25,6 +25,8 @@ objp[:,:2] = np.mgrid[0:cbcol,0:cbrow].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
+# Have to calibrate our cameras in real life.
+
 def calibrate_camera(image):
     #last_time = time.time()
     img = image
@@ -48,6 +50,9 @@ def calibrate_camera(image):
     
 
     return img
+
+# Add light threshold to select white pixels only
+# Increase frames from ~3 FPS to ~20 FPS
 
 def select_white(image):
     # Keep a safe copy of the original image
@@ -100,6 +105,7 @@ def process_img(image):
     # Define points of the region of interest, in this case we defined a trapezoid for the lower half of the screen
     # It needs to be 32 bit for masking to work correctly
     roi = np.array([[[0, rows/2], [cols, rows/2], [cols, rows], [0, rows]]], dtype = np.int32)
+    # roi = np.array([[[cols/3, rows/2], [cols*2/3, rows/2], [cols*12, rows/1.465], [cols/12, rows/1.465]]], dtype = np.int32)
     
     # Actually draw the polygon now
     cv2.fillPoly(masking, roi, 255)
@@ -131,6 +137,107 @@ def draw_lines(image, lines):
     for line in lines:
         coords = line[0]
         cv2.line(image, (coords[0], coords[1]), (coords[2], coords[3]), [0, 0, 255], 3)
+
+    # slope = float(coords[3]-coords[1]) / (coords[2]-coords[0]) * -1
+
+    # if (abs(slope) < 1.3 and abs(slope) > 0.91):
+    #     print(slope)
+    #     print(line)
+    #     print("")
+
+    #top_left = [374, 328]
+    #top_right = [451, 325]
+
+    #bottom_left = [2, 607]
+    #bottom_right = [796, 609]
+
+    #widthA = np.sqrt(((top_left[0] - top_right[0])**2) + ((top_left[1] - top_right[1])**2))
+    #widthB = np.sqrt(((bottom_left[0] - bottom_right[0])**2) + ((bottom_left[1] - bottom_right[1])**2))
+
+    #heightA = np.sqrt(((top_left[0] - bottom_left[0])**2) + ((top_left[1] - bottom_left[1])**2))
+    #heightB = np.sqrt(((top_right[0] - bottom_right[0])**2) + ((top_right[1] - bottom_right[1])**2))
+
+    #widthA = np.sqrt(((763-70)**2) + ((795-789)**2))
+    #widthB = np.sqrt(((479-340)**2) + ((404-404)**2))
+
+    #heightA = np.sqrt(((479-763)**2) + ((404-795)**2))
+    #heightB = np.sqrt(((340-70)**2) + ((404-789)**2))
+
+    #points from before
+    #[340,404], [479,404], [0,800], [800,800]
+
+    #maxWidth = max(int(widthA),int(widthB))
+    #maxHeight = max(int(heightA),int(heightB))
+
+    # dst = np.array([
+    #     [0, 0],
+    #     [maxWidth - 1, 0],
+    #     [maxWidth - 1, maxHeight - 1],
+    #     [0, maxHeight - 1]], dtype = "float32")
+
+    #rect = ([340,404], [479,404], [70,789], [763,795])
+
+    #dst = np.float32([[0,0],[800,0],[0,800],[800,800]])
+
+    #rect = np.array([[340,404], [479,404], [70,789], [763,795]], dtype = "float32")
+    #rect = np.array([top_left, top_right, bottom_left, bottom_right], dtype = "float32")
+
+    #print(rect[0])
+
+    #print(maxWidth)
+
+    rows = image.shape[0]
+    cols = image.shape[1]
+
+
+    # Set source points (trapezoidal)
+    src = np.float32([
+        [(cols / 2) - 180, (rows / 2)],
+        [(cols / 6) - 120, (rows)],
+        [(cols * 5/6) + 120, rows],
+        [(cols / 2) + 180, (rows / 2)]])
+
+
+    # Set destination points -- What do you want to transform your image to? 
+    # In this case skewed 3D -> Planar 2D
+    dst = np.float32([
+        [0, 0],
+        [0, rows],
+        [(cols), rows],
+        [(cols), 0]])
+
+    #print(src)
+    #print(dst)
+
+
+    # First retrieve perspective transform matrix
+    M = cv2.getPerspectiveTransform(src, dst)
+
+    # Apply matrix to original image
+    warp_img = cv2.warpPerspective(image, M, (cols, rows))
+
+    # Convert to log_polar format 
+    log_polar_img = cv2.logPolar(warp_img, (rows / 2, cols / 2), 30, cv2.WARP_FILL_OUTLIERS)
+
+    cv2.imshow("Warped Image", warp_img)
+    cv2.imshow("Log Polar image", log_polar_img)
+
+    ##### Putting this here so I don't forget:
+    ##### Top to down is angle. Left to Right is radius
+
+    ## Have to scale pixels -> m
+
+    ### PSEUDOCODE ###
+    # for cols in image:
+    #     last_time = time.time()
+    #     for rows in image:
+    #         if found red:
+    #             append to ranges list as obstacle
+    #     print(time.time() - last_time)            # Only need to do this once to figure out time increments
+    #             
+
+
+
 
 ## ROS callback for subscriber image topic
 # @param msg the image advertised from another node
