@@ -76,7 +76,7 @@ def select_white(image):
 #  @return image with detected edges
 def process_img(image):
     # Track frames per second
-    last_time = time.time()
+    # last_time = time.time()
 
     # Keep a safe copy of the original image
     original_image = image
@@ -120,8 +120,11 @@ def process_img(image):
     # Draw the lines on the image
     draw_lines(original_image, lines)
 
+    # Convert to polar Coordinates
+    original_image = convert_to_polar(original_image)
+
     # Print frame timestamp
-    print("This frame took {} seconds".format(time.time() - last_time))
+    # print("This frame took {} seconds".format(time.time() - last_time))
 
     return original_image
 
@@ -138,57 +141,13 @@ def draw_lines(image, lines):
         coords = line[0]
         cv2.line(image, (coords[0], coords[1]), (coords[2], coords[3]), [0, 0, 255], 3)
 
-    # slope = float(coords[3]-coords[1]) / (coords[2]-coords[0]) * -1
+def convert_to_polar(image):
+    # Save copy of image just in case
+    original_image = image
 
-    # if (abs(slope) < 1.3 and abs(slope) > 0.91):
-    #     print(slope)
-    #     print(line)
-    #     print("")
-
-    #top_left = [374, 328]
-    #top_right = [451, 325]
-
-    #bottom_left = [2, 607]
-    #bottom_right = [796, 609]
-
-    #widthA = np.sqrt(((top_left[0] - top_right[0])**2) + ((top_left[1] - top_right[1])**2))
-    #widthB = np.sqrt(((bottom_left[0] - bottom_right[0])**2) + ((bottom_left[1] - bottom_right[1])**2))
-
-    #heightA = np.sqrt(((top_left[0] - bottom_left[0])**2) + ((top_left[1] - bottom_left[1])**2))
-    #heightB = np.sqrt(((top_right[0] - bottom_right[0])**2) + ((top_right[1] - bottom_right[1])**2))
-
-    #widthA = np.sqrt(((763-70)**2) + ((795-789)**2))
-    #widthB = np.sqrt(((479-340)**2) + ((404-404)**2))
-
-    #heightA = np.sqrt(((479-763)**2) + ((404-795)**2))
-    #heightB = np.sqrt(((340-70)**2) + ((404-789)**2))
-
-    #points from before
-    #[340,404], [479,404], [0,800], [800,800]
-
-    #maxWidth = max(int(widthA),int(widthB))
-    #maxHeight = max(int(heightA),int(heightB))
-
-    # dst = np.array([
-    #     [0, 0],
-    #     [maxWidth - 1, 0],
-    #     [maxWidth - 1, maxHeight - 1],
-    #     [0, maxHeight - 1]], dtype = "float32")
-
-    #rect = ([340,404], [479,404], [70,789], [763,795])
-
-    #dst = np.float32([[0,0],[800,0],[0,800],[800,800]])
-
-    #rect = np.array([[340,404], [479,404], [70,789], [763,795]], dtype = "float32")
-    #rect = np.array([top_left, top_right, bottom_left, bottom_right], dtype = "float32")
-
-    #print(rect[0])
-
-    #print(maxWidth)
-
+    # Obtain row/column data from image
     rows = image.shape[0]
     cols = image.shape[1]
-
 
     # Set source points (trapezoidal)
     src = np.float32([
@@ -197,7 +156,6 @@ def draw_lines(image, lines):
         [(cols * 5/6) + 120, rows],
         [(cols / 2) + 180, (rows / 2)]])
 
-
     # Set destination points -- What do you want to transform your image to? 
     # In this case skewed 3D -> Planar 2D
     dst = np.float32([
@@ -205,10 +163,6 @@ def draw_lines(image, lines):
         [0, rows],
         [(cols), rows],
         [(cols), 0]])
-
-    #print(src)
-    #print(dst)
-
 
     # First retrieve perspective transform matrix
     M = cv2.getPerspectiveTransform(src, dst)
@@ -219,42 +173,38 @@ def draw_lines(image, lines):
     # Convert to log_polar format 
     log_polar_img = cv2.logPolar(warp_img, (rows / 2, cols / 2), 30, cv2.WARP_FILL_OUTLIERS)
 
-    cv2.imshow("Warped Image", warp_img)
-    cv2.imshow("Log Polar image", log_polar_img)
+    # cv2.imshow("Warped Image", warp_img)
+    # cv2.imshow("Log Polar image", log_polar_img)
 
-    ##### Putting this here so I don't forget:
-    ##### Top to down is angle. Left to Right is radius
-
-    ## Have to scale pixels -> m
-
-    ### PSEUDOCODE ###
-    # for cols in image:
-    #     last_time = time.time()
-    #     for rows in image:
-    #         if found red:
-    #             append to ranges list as obstacle
-    #     print(time.time() - last_time)            # Only need to do this once to figure out time increments
-    #             
-
-
+    return log_polar_img
 
 
 ## ROS callback for subscriber image topic
 # @param msg the image advertised from another node
 # 
 def image_callback(msg):
+    # Set img to msg data
     img = msg
+
+    # Convert ROS image to CV format
     cv_image = bridge.imgmsg_to_cv2(img, desired_encoding="passthrough")
     cv2.imshow("Image window", process_img(cv_image))
+
+    # Convert back to CV and publish
+    ros_image = bridge.cv2_to_imgmsg(process_img(cv_image), encoding="passthrough")
+    log_image_pub.publish(ros_image)
+
     # If 'q' is detected, quit
     if(chr(cv2.waitKey(3)&255) == 'q'):
         rospy.signal_shutdown("Quit detected")
-
 
 bridge = CvBridge()
 
 # Initialize a node in ROS
 rospy.init_node('image_listener')
+
+# Create publisher to publish log polar image
+log_image_pub = rospy.Publisher('/mybot/camera1/image_log_polar', Image, queue_size = 10)
 
 # Create a subscriber to read the published camera image
 rospy.Subscriber("/mybot/camera1/image_raw", Image, image_callback)
