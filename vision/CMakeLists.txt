@@ -10,7 +10,6 @@ project(vision)
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   image_transport
-  opencv3
   roscpp
   rospy
   sensor_msgs
@@ -52,7 +51,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
-    lane_laser.msg
 #   FILES
 #   Message1.msg
 #   Message2.msg
