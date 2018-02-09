@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import roslib
 import rospy
 import cv2
@@ -32,7 +34,7 @@ def append_data_list(image):
 	scan.ranges = []
 	scan.intensities = []
 
-	cv2.imshow('testing', image)
+	# cv2.imshow('testing', image)
 
 	for i in range(0, rows):
 		for j in range(0, cols/4):

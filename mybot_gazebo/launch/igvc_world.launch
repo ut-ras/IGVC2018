@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-  <env name="GAZEBO_MODEL_PATH" value="$(find mybot_gazebo)"/>
-
   <arg name="world" default="empty"/> 
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>

@@ -3,4 +3,7 @@
 	<node pkg="vision" name="hough_transform" type="detect.py" output="screen">
 		<param name="frame_id" value="camera2"/>
 	</node>
+	<node pkg="vision" name="lane_laser_publisher" type="laser_scan_publisher.py" output="screen">
+		<param name="frame_id" value="camera3"/>
+	</node>
 </launch>
