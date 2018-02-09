@@ -45,9 +45,8 @@ To install dependencies for the vision package
 ```
 sudo apt install ros-kinetic-cv-bridge
 sudo apt install ros-kinetic-image-transport
+sudo apt install ros-lunar-cv-camera
 cd ~/catkin_ws/src
-git clone https://github.com/OTL/cv_camera.git
-cd ..
 catkin_make
 source devel/setup.bash
 **replace the device_path parameter in the launch file with the correct id for your system**
