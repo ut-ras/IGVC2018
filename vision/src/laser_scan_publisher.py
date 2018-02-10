@@ -9,10 +9,11 @@ from cv_bridge import CvBridge, CvBridgeError
 import time
 
 def append_data_list(image):
-	num_readings = 100
+	num_readings = 400
 	laser_frequency = 40
+	x = float(200) # change this value to fill screen
 
-	pixels_to_meters = 1/400
+	pixels_to_meters = 1/x
 
 	count = 0
 
@@ -32,7 +33,7 @@ def append_data_list(image):
 	scan.range_max = 100.0
 
 	scan.ranges = []
-	scan.intensities = []
+	# scan.intensities = []
 
 	# cv2.imshow('testing', image)
 

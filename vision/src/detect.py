@@ -172,7 +172,8 @@ def convert_to_polar(image):
     # Convert to log_polar format 
     log_polar_img = cv2.logPolar(warp_img, (rows / 2, cols / 2), 30, cv2.WARP_FILL_OUTLIERS)
 
-    # cv2.imshow("Warped Image", warp_img)
+    # Used for debugging purposes
+    cv2.imshow("Warped Image", warp_img)
     # cv2.imshow("Log Polar image", log_polar_img)
 
     return log_polar_img
