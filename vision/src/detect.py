@@ -80,6 +80,9 @@ def process_img(image):
     # Keep a safe copy of the original image
     original_image = image
 
+    # Debugging
+    cv2.imshow('original image', original_image)
+
     # Retrieve image after applying white masking
     white_img = select_white(image)
     
@@ -148,12 +151,22 @@ def convert_to_polar(image):
     rows = image.shape[0]
     cols = image.shape[1]
 
+    ###
+    # To get source points follow these steps:
+    # 1) With a properly mounted camera (must be static) fill the bottom edge
+    #    of the raw image window with your rectilinear chessboard
+    # 2) Hover over the top pixels corresponding to the top two corners of the
+    #    chessboard and record these (x,y) values
+    # 3) Calculate x and y distances from the center of the frame and change
+    #    the values (0.125) and (5) for x and y correspondingly
+    ###
+
     # Set source points (trapezoidal)
     src = np.float32([
-        [(cols / 2) - 180, (rows / 2)],
-        [(cols / 6) - 120, (rows)],
-        [(cols * 5/6) + 120, rows],
-        [(cols / 2) + 180, (rows / 2)]])
+        [(cols/2) - 0.125*cols, (rows/2) + 5],
+        [(cols/2) - 0.5*cols, (rows)],
+        [(cols/2) + 0.5*cols, (rows)],
+        [(cols/2) + 0.125*cols, (rows/2) + 5]])
 
     # Set destination points -- What do you want to transform your image to? 
     # In this case skewed 3D -> Planar 2D

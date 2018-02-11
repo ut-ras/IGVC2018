@@ -3,12 +3,12 @@
 <model name="chessboard">
   <static>true</static>
     <link name="chessboard_link">
-      <pose>1 0 0.005 0 0 0</pose>
+      <pose>2 0 0.005 0 0 0</pose>
       <collision name="collision">
         <geometry>
           <box>
             <normal>0 0 1</normal>
-            <size>1.5 1.5 0.005</size>
+            <size>3.63636363636 3.63636363636 0.005</size>
           </box>
         </geometry>
         <surface>
@@ -25,7 +25,7 @@
         <geometry>
           <box>
             <normal>0 0 1</normal>
-            <size>1.5 1.5 0.005</size>
+            <size>3.63636363636 3.63636363636 0.005</size>
           </box>
         </geometry>
         <material>
