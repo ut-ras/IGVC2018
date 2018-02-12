@@ -9,7 +9,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import time
 
 def append_data_list(image):
-	e = 2.718281828459
+	e = float(2.718281828459)
 	random_value = 10
 
 	num_readings = 400
@@ -42,11 +42,11 @@ def append_data_list(image):
 		for j in range(0, cols):
 			pixel = image[i,j]
 			#print(pixel[0])
-			if(pixel[2] == 255):				##### BLUE GREEN RED ENCODING
+			if(pixel == 255):				##### BLUE GREEN RED ENCODING
 				#print("Obstacle found!")
-				scan.ranges.append(e**(j*pixels_to_meters))
+				scan.ranges.append((j*pixels_to_meters))
 				break
-			if(j == (cols/4) - 1):
+			if(j == cols - 1):
 				scan.ranges.append(scan.range_max)
 
 	scan_pub.publish(scan)

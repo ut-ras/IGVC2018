@@ -116,19 +116,25 @@ def process_img(image):
     # Apply mask to the original image we mask here so we don't get weird edges created by masking the original image
     processed_img = cv2.bitwise_and(processed_img, processed_img, mask=masking)
 
+    # Apply homography with perspective transform
+    warp_img = apply_perspective(processed_img)
+
     # Hough Line Transforms
-    lines = cv2.HoughLinesP(processed_img, 1, np.pi/180, 180, np.array([]), 10, 20)
-    
+    lines = cv2.HoughLinesP(warp_img, 1, np.pi/180, 180, np.array([]), 10, 20)
+
     # Draw the lines on the image
-    draw_lines(original_image, lines)
+    draw_lines(warp_img, lines)
+
+    # Used for debugging purposes
+    cv2.imshow("Warped Image", warp_img)
 
     # Convert to polar Coordinates
-    original_image = convert_to_polar(original_image)
+    polar_image = convert_to_polar(warp_img)
 
     # Print frame timestamp
     # print("This frame took {} seconds".format(time.time() - last_time))
 
-    return original_image
+    return polar_image
 
 ## Helper function to draw lines on an image
 # @param image the image to draw on
@@ -141,9 +147,9 @@ def draw_lines(image, lines):
     # Draw detected lines on the image (passed by reference)
     for line in lines:
         coords = line[0]
-        cv2.line(image, (coords[0], coords[1]), (coords[2], coords[3]), [0, 0, 255], 3)
+        cv2.line(image, (coords[0], coords[1]), (coords[2], coords[3]), 255, 3)
 
-def convert_to_polar(image):
+def apply_perspective(image):
     # Save copy of image just in case
     original_image = image
 
@@ -182,14 +188,27 @@ def convert_to_polar(image):
     # Apply matrix to original image
     warp_img = cv2.warpPerspective(image, M, (cols, rows))
 
-    # Convert to log_polar format 
-    log_polar_img = cv2.logPolar(warp_img, (rows / 2, cols / 2), 30, cv2.WARP_FILL_OUTLIERS)
-
     # Used for debugging purposes
-    cv2.imshow("Warped Image", warp_img)
+    # cv2.imshow("Warped Image", warp_img)
+
+    return warp_img
+
+
+def convert_to_polar(image):
+    # Save copy of image just in case
+    original_image = image
+
+    # Obtain row/column data from image
+    rows = image.shape[0]
+    cols = image.shape[1]
+
+    # Convert to linear polar format 
+    polar_img = cv2.linearPolar(image, (rows / 2, cols / 2), 800, cv2.WARP_FILL_OUTLIERS)
+
+    # Debugging purposes
     # cv2.imshow("Log Polar image", log_polar_img)
 
-    return log_polar_img
+    return polar_img
 
 
 ## ROS callback for subscriber image topic
