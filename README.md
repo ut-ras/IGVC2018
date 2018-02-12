@@ -1,7 +1,7 @@
 # IGVC2018
 ## Let's get started with our Gazebo Simulation!
-
-### Navigation (Scroll down for Vision)
+# <--------------- (Scroll down for Vision) --------------->
+## Navigation
 
 Here's some packages you need to install aside from ROS/Gazebo:
 
@@ -61,7 +61,7 @@ roslaunch mybot_description mybot_rviz_amcl.launch
 
 Under Rviz tools at the top, click 2D Nav Goal then click and hold wherever you want!
 
-### Vision
+## Vision
 
 To test the visual processing within the simulation please create your workspace if you have not done so yet:
 
@@ -99,3 +99,5 @@ roslaunch vision camerafeed.launch
 ```
 
 And now you're set! Feel free to play around with the camera angles and other parameters. This is primarily for testing vision software only. No path planning or cmd_vel commands are currently being published.
+
+**Spicy Tip:** Move the model vehicle to the inside of a lane to detect lanes on rviz.
