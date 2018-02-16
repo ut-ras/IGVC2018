@@ -79,9 +79,10 @@ stop = timeit.default_timer()						#clock algorithm end
 
 #for demo purposes...
 #iterate through to create the Hough lines on top of the data set returned by the Hough transform
-for line in lines:
-    for x1,y1,x2,y2 in line:
-        cv2.line(line_image,(x1,y1),(x2,y2),(255,50,50),5)
+if(lines is not None):
+	for line in lines:
+		for x1,y1,x2,y2 in line:
+			cv2.line(line_image,(x1,y1),(x2,y2),(255,50,50),5)
 
 #add the lines on top of the original image for display
 lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
