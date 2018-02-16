@@ -4,15 +4,8 @@ project(vision)
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   image_transport
-  OpenCV
   rospy
   sensor_msgs
   std_msgs
 )
-
 catkin_package()
-
-install(DIRECTORY
-launch
-DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
