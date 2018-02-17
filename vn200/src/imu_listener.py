@@ -135,71 +135,6 @@ def hard_iron_offset():
 	print(mag_max)
 	print(mag_min)
 
-	# previous_min = 0
-	# previous_max = 0
-
-	# while(loop):
-	# 	rospy.init_node('imu_listener', anonymous = True)
-	# 	imu_sub = rospy.Subscriber("vn200_accel_gyro_compass", vn_200_accel_gyro_compass, sampling_callback)
-
-	# 	global imu_msg
-
-	# 	if imu_msg == None:
-	# 		return
-
-	# 	mag_x = imu_msg.compass.x
-	# 	mag_y = imu_msg.compass.y
-	# 	mag_z = imu_msg.compass.z
-
-	# 	mag = []
-
-	# 	mag[0] = imu_msg.compass.x
-	# 	mag[1] = imu_msg.compass.y
-	# 	mag[2] = imu_msg.compass.z
-
-
-
-
-	# for i in range(10000):
-	# 	rospy.init_node('imu_listener', anonymous = True)
-	# 	imu_sub = rospy.Subscriber("vn200_accel_gyro_compass", vn_200_accel_gyro_compass, sampling_callback)
-
-	# 	global imu_msg
-
-	# 	global mag_min
-	# 	global mag_max
-
-	# 	if imu_msg==None:
-	# 		return
-
-	# 	mag_x = imu_msg.compass.x
-	# 	mag_y = imu_msg.compass.y
-	# 	mag_z = imu_msg.compass.z
-
-	# 	if mag_x < mag_x_previous_min:
-	# 		mag_x_min = mag_x
-	# 	elif mag_x >  mag_x_previous_max:
-	# 		mag_x_max = mag_x
-
-	# 	if mag_y < mag_y_previous_min:
-	# 		mag_y_min = mag_y
-	# 	elif mag_y >  mag_y_previous_max:
-	# 		mag_y_max = mag_y
-
-	# 	if mag_z < mag_z_previous_min:
-	# 		mag_z_min = mag_z
-	# 	elif mag_z >  mag_z_previous_max:
-	# 		mag_z_max = mag_z
-
-	# 	mag_x_previous_min = mag_x_min
-	# 	mag_y_previous_min = mag_y_min
-	# 	mag_z_previous_min = mag_z_min
-
-	# 	mag_x_previous_min = mag_x_max
-	# 	mag_y_previous_min = mag_y_max
-	# 	mag_z_previous_min = mag_z_max
-
-
 
 def listener():
 	rospy.init_node('imu_listener', anonymous = True)
@@ -242,9 +177,6 @@ def listener():
 	mag_y = imu_msg.compass.y - mag_y_correction
 	mag_z = imu_msg.compass.z - mag_z_correction
 
-	#roll = math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2))
-	#pitch = math.atan2(acc_x, math.sqrt(acc_y**2 + acc_z**2))
-
 	pitch = math.atan2(acc_x, -acc_z)
 	roll = math.atan2(acc_y, acc_z)
 
@@ -262,34 +194,11 @@ def listener():
 	x_h = mag_x * math.cos(comp_pitch) + mag_z * math.sin(comp_pitch)
 	y_h = mag_x * math.sin(comp_roll) * math.sin(comp_pitch) + mag_y * math.cos(comp_roll) - mag_z * math.sin(comp_roll) * math.cos(comp_pitch)
 
-	#mag_norm = math.sqrt((mag_x * mag_x) + (mag_y * mag_y) + (mag_z * mag_z))
-	#mag_x /= mag_norm
-	#mag_y /= mag_norm
-	#mag_z /= mag_norm
-
-	#yaw = (math.atan2((-mag_y * math.cos(comp_roll)) + (mag_z * math.sin(comp_roll)),
-	#	(mag_x * math.cos(comp_pitch)) + (mag_y * math.sin(comp_pitch)) * math.sin(comp_roll) +
-	#	(mag_z * math.sin(comp_pitch) * math.cos(comp_roll)))) * RAD_TO_DEGREES
-
-
 	yaw = math.atan2(y_h, x_h)
-	#yaw = math.atan2(mag_y, mag_x)
-
-	#yaw = math.atan2(-mag_y * math.cos(roll) + mag_z * math.sin(roll),
-	#	mag_x * math.cos(pitch) + mag_z * math.sin(pitch) * math.sin(roll)
-	#	+ mag_z * math.sin(pitch) * math.cos(roll))
-
-	#magnetic_x = (mag_x * math.cos(comp_pitch)) + (mag_y * math.sin(comp_roll) * math.sin(comp_pitch))
-	#+ (mag_z * math.cos(comp_roll) * math.sin(comp_pitch)) 
-	#magnetic_y = (mag_y * math.cos(comp_roll)) - (mag_z * math.sin(comp_roll))
-
-	#yaw = (math.atan2(mag_x, mag_y) * RAD_TO_DEGREES)
 
 	comp_yaw = alpha * (comp_yaw + gyr_z * dt) + (1-alpha) * yaw
 
 	print(yaw * RAD_TO_DEGREES)
-
-	#yaw_msg = bound0to2Pi(math.pi*2 - yaw + YAW_CORRECTION)
 
 	#print(comp_pitch)
 	previous = current_time

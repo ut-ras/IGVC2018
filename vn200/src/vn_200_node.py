@@ -238,7 +238,7 @@ def process_and_publish(data):
         if len(gps_data) is not GPS_SOLN_MSG_LEN:
             rospy.logwarn("ERROR reading GPS message")
             return
-        #publish_gps_data(gps_data)
+        publish_gps_data(gps_data)
         #return gps_data[5:6]
         #print(gps_data)
 
@@ -247,8 +247,8 @@ def process_and_publish(data):
         if len(ins_data) is not INS_SOL_MSG_LEN:
            rospy.logwarn("ERROR reading INS message")
            return
-        #rospy.loginfo('!!!!INS' + data)
-        #publish_ins_data(ins_data)
+        rospy.loginfo('!!!!INS' + data)
+        publish_ins_data(ins_data)
 
     else:
         rospy.loginfo("Unknown message: " + str(data) + '\n')
