@@ -1,0 +1,5 @@
+<launch>
+	<node pkg="vn200" name="imu_launch" type="vn_200_node.py">
+		<param name="port" value="/dev/ttyUSB0"/>
+	</node>
+</launch>
