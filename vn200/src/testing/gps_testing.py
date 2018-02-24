@@ -7,11 +7,11 @@ import rospy
 import time
 import math
 
-imu_msg = None
+gps_msg = None
 
 def callback(data):
-	global imu_msg
-	imu_msg = data
+	global gps_msg
+	gps_msg = data
 
 def listener():
 	lat_avg = float(0)
@@ -23,25 +23,18 @@ def listener():
 	max_latitude = float(0)
 	max_longitude = float(-100)
 
-
 	rospy.init_node('gps_testing', anonymous = True)
-
-	#imu_sub = rospy.Subscriber("vn200_accel_gyro_compass", vn_200_accel_gyro_compass, callback)
-	#gps_sub = rospy.Subscriber("vn200_gps", vn_200_gps_soln, callback)
-	#ins_sub = rospy.Subscriber("vn200_ins", vn_200_ins_soln, callback)
-
-	#imu_msg = vn_200_accel_gyro_compass()
 
 	for i in range(0,5000):
 		gps_sub = rospy.Subscriber("vn200_gps", vn_200_gps_soln, callback)
 
-		global imu_msg
+		global gps_msg
 
-		if imu_msg==None:
+		if gps_msg==None:
 			return
 
-		latitude = imu_msg.latitude
-		longitude = imu_msg.longitude
+		latitude = gps_msg.latitude
+		longitude = gps_msg.longitude
 
 		lat_avg = lat_avg + latitude
 		long_avg = long_avg + longitude
