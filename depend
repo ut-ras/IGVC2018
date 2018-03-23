@@ -1,0 +1,10 @@
+# Motor
+
+ros-kinetic-rosserial
+python-serial
+xboxdrv
+
+# Misc
+
+ros-kinetic-rqt-ez-publisher
+

@@ -47,7 +47,6 @@ def publisher():
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         left_speed, right_speed = joy2speed(joystick, True)
-        #TODO: check trigger and joystick max values
         left_speed *= max_speed * joystick.leftTrigger()
         right_speed *= max_speed * joystick.rightTrigger()
         left.publish(left_speed)
