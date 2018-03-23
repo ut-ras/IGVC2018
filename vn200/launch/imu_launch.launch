@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <launch>
-	<node pkg="vn200" name="imu_launch" type="vn_200_node.py">
+	<node pkg="vn200" name="vn_200_node" type="vn_200_node.py">
 		<param name="port" value="/dev/ttyUSB0"/>
 	</node>
+	<node pkg="vn200" name="yaw_heading_pub" type="imu_listener.py" />
 </launch>
