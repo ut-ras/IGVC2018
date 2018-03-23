@@ -17,8 +17,12 @@ git clone https://github.com/ut-ras/IGVC2018.git
  ...and install the needed dependencies:
 
 ```
-cd ~/catkin_ws/src/IGVC2018
 sudo apt install $(grep -vE "^\s*#" depend  | tr "\n" " ")
+cd ~/catkin_ws/src
+git clone https://github.com/ros-drivers/rosserial.git
+catkin_make
+source install/setup.bash
+source devel/setup.bash
 ```
 
 If you want to be able to edit the motor control code on the TM4C you'll need to [install the Energia IDE](http://energia.nu/download/) and the necessary libraries:
