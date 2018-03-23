@@ -11,32 +11,24 @@ First you need to download and install ros by following these two guides:
 Then clone our repo into the src folder:
 
 ```
-  cd ~/catkin_ws/src
-  git clone https://github.com/ut-ras/IGVC2018.git
+cd ~/catkin_ws/src
+git clone https://github.com/ut-ras/IGVC2018.git
 ```
-
-It isn't necessary to run the codebase but if you want to be able to edit the code on the microcontroller, you'll need to [install the Energia IDE](http://energia.nu/download/)
+ ...and install the needed dependencies:
 
 ```
-sudo apt install xboxdrv cd catkin_ws/src
-sudo apt install python-serial
+sudo apt install $(grep -vE "^\s*#" depend  | tr "\n" " ")
 cd ~/catkin_ws/src
 git clone https://github.com/ros-drivers/rosserial.git
-cd ..
 catkin_make
-catkin_make install
 source install/setup.bash
+source devel/setup.bash
 ```
 
-If you get Energia you'll need to build the libraries for it:
+If you want to be able to edit the motor control code on the TM4C you'll need to [install the Energia IDE](http://energia.nu/download/) and the necessary libraries:
 
 ```
 cd <sketches_dir>/libraries
 rosrun rosserial_tivac make_libraries_energia .
 ```
 
-To check if it works, run the manual control launch file:
-
-```
-roslaunch motor manual.launch
-```
