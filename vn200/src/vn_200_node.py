@@ -18,7 +18,7 @@
 
 from vn200.msg import vn_200_accel_gyro_compass, vn_200_gps_soln, vn_200_ins_soln
 from geometry_msgs.msg import Vector3
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Float32MultiArray
 import rospy
 import serial
 import time
@@ -28,12 +28,15 @@ DO_SCALING = True
 IMU_MSG_LEN = 12
 GPS_SOLN_MSG_LEN = 16
 INS_SOL_MSG_LEN = 16
+MAG_COMP_MSG_LEN = 13
 
 ser = serial.Serial(port = '/dev/ttyUSB0', baudrate=921600)
 
 imu_pub = rospy.Publisher('vn200_accel_gyro_compass', vn_200_accel_gyro_compass, queue_size = 10)
 gps_pub = rospy.Publisher('vn200_gps', vn_200_gps_soln, queue_size = 10)
 ins_pub = rospy.Publisher('vn200_ins', vn_200_ins_soln, queue_size = 10)
+mag_comp_c_pub = rospy.Publisher('vn200_mag_comp_c_matrix', Float32MultiArray, queue_size = 10)
+mag_comp_b_pub = rospy.Publisher('vn200_mag_comp_b_matrix', Float32MultiArray, queue_size = 10)
 
 def read_data() :
 
@@ -81,7 +84,8 @@ def cmd(string):
 
 READ_CMDS = [cmd("VNRRG,54"), # read IMU data from the register
              cmd("VNRRG,58"), # read GPS soln from the register
-             cmd("VNRRG,63")] # read INS soln from the register
+             cmd("VNRRG,63"), # read INS soln from the register
+             cmd("VNRRG,23")] # read mag compensation from the register
 
 def strip_tag_and_checksum (data):
     # remove the $VNRRG tag in front of the message and the checksum behind the message
@@ -219,6 +223,20 @@ def publish_ins_data(ins_data):
 
     ins_pub.publish(ins_msg)
 
+def publish_mag_comp_data(mag_comp_data):
+    global mag_comp_pub
+
+    c_matrix = Float32MultiArray()
+    b_matrix = Float32MultiArray()
+
+    for i in range(9):
+    	c_matrix.data.append(float(mag_comp_data[i+1]))
+    for i in range(3):
+    	b_matrix.data.append(float(mag_comp_data[i+10]))
+
+    mag_comp_c_pub.publish(c_matrix)
+    mag_comp_b_pub.publish(b_matrix)
+
 def process_and_publish(data):
 
     global GPS_SOLN_MSG_LEN
@@ -247,8 +265,15 @@ def process_and_publish(data):
         if len(ins_data) is not INS_SOL_MSG_LEN:
            rospy.logwarn("ERROR reading INS message")
            return
-        rospy.loginfo('!!!!INS' + data)
+        #rospy.loginfo('!!!!INS' + data)
         publish_ins_data(ins_data)
+
+    elif  data[7:9] == "23" and data[1:6] == "VNRRG":#data[1:6] == "VNMAGCOMP":
+        mag_compensation_data = data[7:-4].split(',')
+        if len(mag_compensation_data) is not MAG_COMP_MSG_LEN:
+           rospy.logwarn("ERROR reading Mag compensation message")
+           return
+        publish_mag_comp_data(mag_compensation_data)
 
     else:
         rospy.loginfo("Unknown message: " + str(data) + '\n')
