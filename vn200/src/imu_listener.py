@@ -2,7 +2,7 @@
 
 from vn200.msg import vn_200_accel_gyro_compass, vn_200_gps_soln, vn_200_ins_soln
 from geometry_msgs.msg import Vector3
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Float32
 import rospy
 import time
 import math
@@ -143,6 +143,8 @@ def listener():
 	#gps_sub = rospy.Subscriber("vn200_gps", vn_200_gps_soln, callback)
 	#ins_sub = rospy.Subscriber("vn200_ins", vn_200_ins_soln, callback)
 
+	yaw_heading_pub = rospy.Publisher('yaw_heading', Float32, queue_size=10)
+
 	#imu_msg = vn_200_accel_gyro_compass()
 	global imu_msg
 	global previous
@@ -198,7 +200,10 @@ def listener():
 
 	comp_yaw = alpha * (comp_yaw + gyr_z * dt) + (1-alpha) * yaw
 
-	print(yaw * RAD_TO_DEGREES)
+	# print(yaw * RAD_TO_DEGREES)
+	yaw_degrees = yaw*RAD_TO_DEGREES
+
+	yaw_heading_pub.publish(yaw_degrees)
 
 	#print(comp_pitch)
 	previous = current_time
