@@ -9,5 +9,5 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package()
 
-catkin_install_python(PROGRAMS src/manual_control.py src/xbox.py
+catkin_install_python(PROGRAMS src/manual_control.py src/xbox.py src/gps_waypoints.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
