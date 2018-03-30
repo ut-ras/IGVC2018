@@ -21,10 +21,15 @@ def broadcast_tf(msg):
 	# The following does not work for whatever reason :/
 	###
 
-	t.transform.rotation.x = odom.pose.pose.orientation.x
-	t.transform.rotation.y = odom.pose.pose.orientation.y
-	t.transform.rotation.z = odom.pose.pose.orientation.z
-	t.transform.rotation.w = odom.pose.pose.orientation.w
+	#t.transform.rotation.x = odom.pose.pose.orientation.x
+	#t.transform.rotation.y = odom.pose.pose.orientation.y
+	#t.transform.rotation.z = odom.pose.pose.orientation.z
+	#t.transform.rotation.w = odom.pose.pose.orientation.w
+
+	t.transform.rotation.x = 0
+	t.transform.rotation.y = 0
+	t.transform.rotation.z = 0
+	t.transform.rotation.w = 1
 
 	br.sendTransform(t)
 
