@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="vn200" name="vn_200_node" type="vn_200_node.py">
+        <param name="port" value="/dev/ttyUSB0"/>
+    </node>
+    <node pkg="vn200" name="yaw_heading_pub" type="imu_listener.py" />
+    <node pkg="motor" name="waypoint_follower" type="gps_waypoints.py" />
+</launch>
