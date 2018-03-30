@@ -26,3 +26,6 @@ catkin_package()
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+catkin_install_python(PROGRAMS src/imu_listener.py src/vn_200_node.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

@@ -8,3 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package()
+
+catkin_install_python(PROGRAMS src/manual_control.py src/xbox.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
