@@ -24,7 +24,7 @@ def broadcast_tf(msg):
 	t.transform.rotation.x = odom.pose.pose.orientation.x
 	t.transform.rotation.y = odom.pose.pose.orientation.y
 	t.transform.rotation.z = odom.pose.pose.orientation.z
-	t.transform.rotation.w = odom.pose.pose.orientation.w
+	t.transform.rotation.w = 1
 
 	br.sendTransform(t)
 

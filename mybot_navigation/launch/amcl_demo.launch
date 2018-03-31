@@ -1,29 +1,34 @@
 <?xml version="1.0"?>
 <launch>
+  <!--arg name="use_map_topic" value="true"/-->
+  <param name="/use_sim_time" value="true"/>
+
+  <arg name="odom_frame_id" value="odom"/>
+  <arg name="base_frame_id" value="chassis"/>
+  <arg name="update_min_d" value="0.5"/>
+  <arg name="update_min_a" value="1.0"/>
+  <arg name="laser_topic" default="mybot/laser/scan" />
+
   <master auto="start"/>
 
   <!-- Map server -->
-  <arg name="map_file" default="$(find mybot_navigation)/maps/test_map.yaml"/>
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+  <!--arg name="map_file" default="$(find mybot_navigation)/maps/test_map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/-->
 
   <!-- Place map frame at odometry frame -->
-  <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster"
-      args="0 0 0 0 0 0 map odom 100"/>
-
-  <!--arg name="use_map_topic" value="true"/-->
+  <!--node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster"
+      args="0 0 0 0 0 0 map odom 100"/-->
 
   <!-- Localization -->
-  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+  <!--node pkg="amcl" type="amcl" name="amcl" output="screen">
     <remap from="scan" to="mybot/laser/scan"/>
     <param name="odom_frame_id" value="odom"/>
     <param name="odom_model_type" value="diff-corrected"/>
     <param name="base_frame_id" value="chassis"/>
     <param name="update_min_d" value="0.5"/>
     <param name="update_min_a" value="1.0"/>
-  </node>
+  </node-->
   <!--include file="$(find amcl)/examples/amcl_omni.launch"/-->
-
-
 
   <!-- Move base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
