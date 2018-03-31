@@ -9,9 +9,6 @@ from cv_bridge import CvBridge, CvBridgeError
 import time
 
 def append_data_list(image):
-	previous_pixel_col = 0
-	direction = 1
-
 	e = float(2.718281828459)
 	random_value = 10
 
@@ -41,21 +38,65 @@ def append_data_list(image):
 
 	# cv2.imshow('testing', image)
 
-	for i in range(0, rows):
-		for j in range(previous_pixel_col, cols):
-			pixel = image[i,j]
-			#print(pixel[0])
-			if(pixel == 255):				##### BLUE GREEN RED ENCODING
-				#print("Obstacle found!")
-				scan.ranges.append((j*pixels_to_meters))
-				previous_pixel_col = j
+	# for i in range(0, rows):
+	# 	for j in range(previous_pixel_col, cols):
+	# 		pixel = image[i,j]
+	# 		#print(pixel[0])
+	# 		if(pixel == 255):				##### BLUE GREEN RED ENCODING
+	# 			#print("Obstacle found!")
+	# 			scan.ranges.append((j*pixels_to_meters))
+	# 			previous_pixel_col = j
+	# 			break
+	# 		if(image[i, previous_pixel_col - 1] == 0):
+	# 			direction = 1
+	# 		elif(image[i, previous_pixel_col - 1] == 255):
+	# 			direction = -1
+	# 		if(j == cols - 1):
+	# 			scan.ranges.append(scan.range_max)
+	
+	previous_pixel_col = 0
+	col = previous_pixel_col
+
+	first_row = True
+	obstacle_found = False
+
+	row = 0
+
+	while(row < rows):
+		# Counter variables for when obstacle is not found
+
+		col_counter = 1
+		sign = 1
+
+		# Main Loop
+
+		while(not first_row and not obstacle_found):
+			while(col < cols and col_counter <= 20):
+				print(row)		# Debugging
+				print(col)		# Debugging
+				if(image[row,col] == 255):		# 255 == White
+					obstacle_found = True
+					scan.ranges.append((col*pixels_to_meters))
+					previous_pixel_col = col
+					break
+				else:
+					col = previous_pixel_col + sign * col_counter
+					sign = sign * -1
+
+					if(col >= col + 20 or col <= col + 20):		# End of range
+						scan.ranges.append(scan.range_max)
+				if(sign == 1):
+				    col_counter += 1
+
+		#loop to get first obstacle
+
+		while(col < cols and first_row):
+			if(image[row,col] == 255):
+				previous_pixel_col = col
+				first_row = False			# Set first_row condition such that this loop never runs after first row
 				break
-			if(image[i, previous_pixel_col - 1] == 0):
-				direction = 1
-			elif(image[i, previous_pixel_col - 1] == 255):
-				direction = -1
-			if(j == cols - 1):
-				scan.ranges.append(scan.range_max)
+			col += 1
+		row += 1
 
 	scan_pub.publish(scan)
 
