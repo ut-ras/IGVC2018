@@ -9,6 +9,9 @@ from cv_bridge import CvBridge, CvBridgeError
 import time
 
 def append_data_list(image):
+	previous_pixel_col = 0
+	direction = 1
+
 	e = float(2.718281828459)
 	random_value = 10
 
@@ -39,13 +42,18 @@ def append_data_list(image):
 	# cv2.imshow('testing', image)
 
 	for i in range(0, rows):
-		for j in range(0, cols):
+		for j in range(previous_pixel_col, cols):
 			pixel = image[i,j]
 			#print(pixel[0])
 			if(pixel == 255):				##### BLUE GREEN RED ENCODING
 				#print("Obstacle found!")
 				scan.ranges.append((j*pixels_to_meters))
+				previous_pixel_col = j
 				break
+			if(image[i, previous_pixel_col - 1] == 0):
+				direction = 1
+			elif(image[i, previous_pixel_col - 1] == 255):
+				direction = -1
 			if(j == cols - 1):
 				scan.ranges.append(scan.range_max)
 
