@@ -122,8 +122,11 @@ def process_img(image):
     # Hough Line Transforms
     lines = cv2.HoughLinesP(warp_img, 1, np.pi/180, 180, np.array([]), 10, 20)
 
+    # Remove similar lines
+    updated_lines = discard_parallel_lines(lines)
+
     # Draw the lines on the image
-    draw_lines(warp_img, lines)
+    draw_lines(warp_img, updated_lines)
 
     # Used for debugging purposes
     cv2.imshow("Warped Image", warp_img)
@@ -133,6 +136,10 @@ def process_img(image):
 
     # Print frame timestamp
     # print("This frame took {} seconds".format(time.time() - last_time))
+
+    # test_array = np.array([[1,2,3,4],[1,4,2,5],[3,2,6,3]])
+    # test_array = np.delete(test_array, 2, 0)
+    # print(test_array)
 
     return polar_image
 
@@ -145,9 +152,51 @@ def draw_lines(image, lines):
         return
 
     # Draw detected lines on the image (passed by reference)
+
     for line in lines:
         coords = line[0]
         cv2.line(image, (coords[0], coords[1]), (coords[2], coords[3]), 255, 3)
+
+def discard_parallel_lines(lines):
+    if lines is None:
+        return
+
+    previous_slopes = {}
+    counter = 0
+    number_of_decimals = 1
+    precision = 1000
+
+    new_lines = lines
+    original_length = new_lines.size
+
+    for line in lines:
+        coords = line[0]
+        slope = (coords[3] - coords[1]) / (coords[2] - coords[0])
+        rounded_slope = round(slope, number_of_decimals)
+
+        if(rounded_slope in previous_slopes):
+            new_lines = np.delete(new_lines, counter, 0)
+            counter -= 1
+        else:
+            while(precision >= 1):          # Precision is +/- range
+                if(rounded_slope - (precision*(10**(-number_of_decimals))) in previous_slopes):
+                    new_lines = np.delete(new_lines, counter, 0)
+                    counter -= 1
+                elif(rounded_slope + (precision*(10**(-number_of_decimals))) in previous_slopes):
+                    new_lines = np.delete(new_lines, counter, 0)
+                    counter -= 1
+                else:
+                    previous_slopes[rounded_slope] = 1
+
+                precision -= 1
+
+        counter += 1
+
+    length = new_lines.size
+    print (original_length , length)
+    return new_lines
+
+
 
 def apply_perspective(image):
     # Save copy of image just in case

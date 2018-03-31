@@ -62,6 +62,12 @@ def append_data_list(image):
 
 	row = 0
 
+	x = 0
+
+	condition_1 = True
+	condition_2 = True
+	condition_3 = True
+
 	while(row < rows):
 		# Counter variables for when obstacle is not found
 
@@ -70,23 +76,31 @@ def append_data_list(image):
 
 		# Main Loop
 
-		while(not first_row and not obstacle_found):
-			while(col < cols and col_counter <= 20):
-				print(row)		# Debugging
-				print(col)		# Debugging
-				if(image[row,col] == 255):		# 255 == White
-					obstacle_found = True
-					scan.ranges.append((col*pixels_to_meters))
-					previous_pixel_col = col
-					break
-				else:
-					col = previous_pixel_col + sign * col_counter
-					sign = sign * -1
+		while(not first_row and col < cols and col_counter <= 20):
+			#print(row)		# Debugging
+			#print(col)		# Debugging
+			if(image[row,col] == 255):		# 255 == White
+				obstacle_found = True
+				scan.ranges.append((col*pixels_to_meters))
+				previous_pixel_col = col
+				break
+			else:
+				col = previous_pixel_col + sign * col_counter
+				sign = sign * -1
 
-					if(col >= col + 20 or col <= col + 20):		# End of range
-						scan.ranges.append(scan.range_max)
-				if(sign == 1):
-				    col_counter += 1
+				if(col_counter == 20):		# End of range
+					scan.ranges.append(scan.range_max)
+			if(sign == 1):
+			    col_counter += 1
+
+		# while(condition_1 and condition_2):
+		# 	while(condition_3):
+		# 		x += 1
+		# 		if(x == 5):
+		# 			condition_2 = False
+		# 			break
+		# 		print(x)
+
 
 		#loop to get first obstacle
 
