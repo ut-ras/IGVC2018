@@ -120,7 +120,7 @@ def process_img(image):
     warp_img = apply_perspective(processed_img)
 
     # Hough Line Transforms
-    lines = cv2.HoughLinesP(warp_img, 1, np.pi/180, 180, np.array([]), 10, 20)
+    lines = cv2.HoughLinesP(warp_img, 1, np.pi/180, 180, np.array([]), 150, 5)
 
     # Remove similar lines
     updated_lines = discard_parallel_lines(lines)
@@ -163,37 +163,69 @@ def discard_parallel_lines(lines):
 
     previous_slopes = {}
     counter = 0
-    number_of_decimals = 1
-    precision = 1000
+
+    number_of_decimals = 3          # Number of places to right of decimal place
+
+    #print(precision)
 
     new_lines = lines
     original_length = new_lines.size
 
     for line in lines:
+        dead_zone = float(0.1)          # +/- initial range (i.e Slope of -4.5 to 5.5 are all parallel slopes)
+
+        precision = float(dead_zone / (10**(-number_of_decimals)))      # Iterate through each increment
+                                                                        # of decimal places within range
+
         coords = line[0]
-        slope = (coords[3] - coords[1]) / (coords[2] - coords[0])
+        #print(coords)
+        if(coords[2] - coords[0] != 0):
+            slope = (float(coords[3]) - float(coords[1])) / (float(coords[2]) - float(coords[0]))
+        else:
+            slope = 9999        # Abnormally large slope for vertical line to not divide by zero
+        
         rounded_slope = round(slope, number_of_decimals)
+        #print("looping: ", counter)
+        #print(slope)
 
         if(rounded_slope in previous_slopes):
+            #print(counter)
+            #print(previous_slopes)
+            #print(new_lines)
+            #print("deleting center: ", rounded_slope, new_lines[counter, 0])
             new_lines = np.delete(new_lines, counter, 0)
             counter -= 1
         else:
-            while(precision >= 1):          # Precision is +/- range
-                if(rounded_slope - (precision*(10**(-number_of_decimals))) in previous_slopes):
+            #print(counter)
+            while(precision >= 1):
+                dead_zone = precision*(10**(-number_of_decimals))       # Reset dead zone to close in on center value
+                #print(dead_zone)
+                #print round(rounded_slope - dead_zone, number_of_decimals)
+                # print (previous_slopes, round(rounded_slope - dead_zone, number_of_decimals))
+
+                if(round(rounded_slope - dead_zone, number_of_decimals) in previous_slopes):
                     new_lines = np.delete(new_lines, counter, 0)
+                    #print("deleting negative: ", rounded_slope, new_lines[counter, 0])
                     counter -= 1
-                elif(rounded_slope + (precision*(10**(-number_of_decimals))) in previous_slopes):
+                    break
+                elif(round(rounded_slope + dead_zone, number_of_decimals) in previous_slopes):
                     new_lines = np.delete(new_lines, counter, 0)
+                    #print("deleting positive: ", rounded_slope, new_lines[counter, 0])
                     counter -= 1
+                    break
                 else:
                     previous_slopes[rounded_slope] = 1
 
                 precision -= 1
+        #print(counter)
 
         counter += 1
+        #print(previous_slopes)
+    #print(previous_slopes)
+    #print("finished for loop")
 
     length = new_lines.size
-    print (original_length , length)
+    # print (original_length, length)
     return new_lines
 
 
@@ -264,6 +296,9 @@ def convert_to_polar(image):
 # @param msg the image advertised from another node
 # 
 def image_callback(msg):
+    # Set timer
+    last_time = time.time()
+
     # Set img to msg data
     img = msg
 
@@ -278,6 +313,9 @@ def image_callback(msg):
     # If 'q' is detected, quit
     if(chr(cv2.waitKey(3)&255) == 'q'):
         rospy.signal_shutdown("Quit detected")
+
+    # Print FPS
+    print("{} fps".format(1/(time.time() - last_time)))
 
 bridge = CvBridge()
 
