@@ -171,9 +171,13 @@ def listener():
     mag_y_correction = float(1.56595)
     mag_z_correction = float(-1.47125)
 
+    gyr_x_correction = float(-0.005)
+    gyr_y_correction = float(-0.048147)
+    gyr_z_correction = float(0.01402)
+
     RAD_TO_DEGREES = float(180 / math.pi)
 
-    alpha = float(0.1)
+    alpha = float(0.9)
 
     if imu_msg is None:
         return
@@ -182,9 +186,9 @@ def listener():
     acc_y = imu_msg.accelerometer.y
     acc_z = imu_msg.accelerometer.z
 
-    gyr_x = imu_msg.gyro.x
-    gyr_y = imu_msg.gyro.y
-    gyr_z = imu_msg.gyro.z
+    gyr_x = imu_msg.gyro.x - gyr_x_correction
+    gyr_y = imu_msg.gyro.y - gyr_y_correction
+    gyr_z = imu_msg.gyro.z - gyr_z_correction
 
     # print(gyr_x)
 
@@ -195,6 +199,8 @@ def listener():
     pitch = math.atan2(acc_x, -acc_z)
     roll = math.atan2(acc_y, acc_z)
 
+    #print("pitch", pitch, "roll", roll)
+
     roll = bound0to2pi(roll)
 
     current_time = rospy.get_time()
@@ -202,6 +208,8 @@ def listener():
 
     comp_pitch = alpha * (comp_pitch + gyr_y * dt) + (1 - alpha) * pitch
     comp_roll = alpha * (comp_roll + gyr_x * dt) + (1 - alpha) * roll
+
+    #print("comp_pich", comp_pitch, "comp_roll", comp_roll)
 
     YAW_CORRECTION = -math.pi / 2
 
@@ -216,13 +224,16 @@ def listener():
     # print(yaw * RAD_TO_DEGREES)
     yaw_degrees = yaw * RAD_TO_DEGREES
 
+    print(yaw_degrees)
+
+    #print(gyr_x, gyr_y, gyr_z)
+
     yaw_heading_pub.publish(yaw_degrees)
 
     # print(comp_pitch)
     previous = current_time
     previous_yaw = comp_yaw
     # print(gyr_xavg)
-
 
 def visualization():
     pass
