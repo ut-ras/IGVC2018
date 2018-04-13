@@ -12,7 +12,7 @@ waypoints = [[123.0, 456.0], [456.0, 123.0]]  # obviously replace these
 ourPos = [0.0, 0.0]
 ourDir = 0.0
 angle_deadzone = 10  # Change later
-turnspeed = .25
+turnspeed = .15
 straightspeed = .5
 distance_deadzone = .000025
 
