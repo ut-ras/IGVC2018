@@ -4,6 +4,8 @@ import rospy
 from std_msgs.msg import Float32
 from vn200.msg import vn_200_gps_soln
 import math
+from collections import deque
+
 
 waypoints = [[123.0, 456.0], [456.0, 123.0]]  # obviously replace these
 
@@ -35,8 +37,7 @@ def compass_bearing(pointA, pointB):
     diffLong = math.radians(pointB[1] - pointA[1])
 
     x = math.sin(diffLong) * math.cos(lat2)
-    y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1)
-                                           * math.cos(lat2) * math.cos(diffLong))
+    y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1)* math.cos(lat2) * math.cos(diffLong))
 
     initial_bearing = math.atan2(x, y)
 
@@ -60,7 +61,9 @@ def driver():
     global turnspeed
     global straightspeed
     global distance_deadzone
+    global tracker_array
 
+    tracker_array =  deque([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
     rospy.init_node('gps_waypoints', log_level=rospy.INFO)
 
     imu_sub = rospy.Subscriber("yaw_heading", Float32, yaw_cb)
@@ -78,23 +81,31 @@ def driver():
     while not rospy.is_shutdown():
         print "please"
         for next_waypoint in waypoints:
-            print get_distance(ourPos, next_waypoint)
+
+
             while get_distance(ourPos, next_waypoint) > distance_deadzone:
-                # check if we need to turn and either turn or go straight
+
+                print get_distance(ourPos, next_waypoint)
                 currentbearing = compass_bearing(ourPos, next_waypoint)
                 dif1 = abs(ourDir - currentbearing)
+                dif2 = ourDir - currentbearing
                 print "dif:", dif1, "bear:", currentbearing, "ourDir:", ourDir
-                if dif1 > angle_deadzone:
-                    if dif1 < 180:
-                        left.publish(-turnspeed)
-                        right.publish(turnspeed)
-                    else:
-                        left.publish(turnspeed)
-                        right.publish(-turnspeed)
-                else:
-                    left.publish(straightspeed)
-                    right.publish(straightspeed)
-                rate.sleep()
+                    while dif1 > 0
+                        prop = (dif1)/(50)
+                        intgral = sum(tracker_array)
+                        if dif1 < 180:
+                            left.publish(turnspeed +((.2)*prop)) + (.1)*integral
+                            right.publish(turnspeed)
+                            tracker_array.popleft()
+                            tracker_array.append(dif2)
+                        else:
+                            left.publish(turnspeed)
+                            right.publish(turnspeed + ((.2)*prop)) + (.1)*integral
+                            tracker_array.popleft()
+                            tracker_array.append(dif2)
+                
+                        else:
+                            rate.sleep()
 
 
 if __name__ == '__main__':
@@ -103,3 +114,9 @@ if __name__ == '__main__':
         driver()
     except rospy.ROSInterruptException:
         pass
+
+
+
+
+
+
