@@ -81,7 +81,7 @@ def append_data_list(image):
 			#print(col)		# Debugging
 			if(image[row,col] == 255):		# 255 == White
 				obstacle_found = True
-				scan.ranges.append((col*pixels_to_meters))
+				scan.ranges.append(col*pixels_to_meters)
 				previous_pixel_col = col
 				break
 			else:
@@ -132,7 +132,7 @@ def image_callback(msg):
 		rospy.signal_shutdown("Quit detected")
 
 	# Print FPS
-	print("{} fps".format(1/(time.time() - last_time)))
+	#print("{} fps".format(1/(time.time() - last_time)))
 
 bridge = CvBridge()
 
