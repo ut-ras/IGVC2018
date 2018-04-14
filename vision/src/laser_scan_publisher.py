@@ -79,7 +79,7 @@ def append_data_list(image):
 		while(not first_row and col < cols and col_counter <= 20):
 			#print(row)		# Debugging
 			#print(col)		# Debugging
-			if(image[row,col] == 255):		# 255 == White
+			if(image[row,col] >= 255):		# 255 == White
 				obstacle_found = True
 				scan.ranges.append(col*pixels_to_meters)
 				previous_pixel_col = col
@@ -105,7 +105,7 @@ def append_data_list(image):
 		#loop to get first obstacle
 
 		while(col < cols and first_row):
-			if(image[row,col] == 255):
+			if(image[row,col] >= 255):
 				previous_pixel_col = col
 				first_row = False			# Set first_row condition such that this loop never runs after first row
 				break

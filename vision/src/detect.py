@@ -68,6 +68,45 @@ def select_white(image):
     # return mask
     return cv2.bitwise_and(original_image, original_image, mask = white_mask)
 
+def draw_skeleton(image):
+    # Keep a safe copy of the original image
+    original_image = image
+
+    # Set size of array (800 x 800 pixels each with one grayscale value)
+    size = np.size(image)
+
+    # Set array of zeros for final skeleton image
+    skel = np.zeros(image.shape, np.uint8)
+
+    # Pass shape and size of Morphological kernel
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
+
+    # Set initial condition to false
+    done = False
+
+    # Repeat until finished
+    while(not done):
+        # Erode boundaries of foreground object
+        eroded = cv2.erode(image, element)
+
+        # Opposite of erosion -- Increases boundaries of foreground object
+        dilated = cv2.dilate(eroded, element)
+
+        # Calculate per-element difference
+        temp = cv2.subtract(image, dilated)
+
+        # Only adds skeleton to original skel array
+        skel = cv2.bitwise_or(skel, temp)
+
+        # ???
+        image = eroded.copy()
+
+        zeros = size - cv2.countNonZero(image)
+        if zeros == size:
+            done = True
+
+    return skel
+
 ## Processes image and returns image with drawn lines
 #  @type image: Mat
 #  @param image input image to process
@@ -134,14 +173,40 @@ def process_img(image):
     # Convert to polar Coordinates
     polar_image = convert_to_polar(warp_img)
 
-    # Print frame timestamp
-    # print("This frame took {} seconds".format(time.time() - last_time))
+    return polar_image
 
-    # test_array = np.array([[1,2,3,4],[1,4,2,5],[3,2,6,3]])
-    # test_array = np.delete(test_array, 2, 0)
-    # print(test_array)
+def new_process_img(image):
+    # Track frames per second
+    # last_time = time.time()
+
+    # Keep a safe copy of the original image
+    original_image = image
+
+    # Debugging
+    cv2.imshow('original image', original_image)
+
+    # Retrieve image after applying white masking
+    white_img = select_white(image)
+    cv2.imshow("White Image", white_img)
+    
+    # convert the image to Grayscale
+    gray_img = cv2.cvtColor(white_img, cv2.COLOR_BGR2GRAY)
+    cv2.imshow("Gray Image", gray_img)
+
+    # Apply homography with perspective transform
+    warp_img = apply_perspective(gray_img)
+    cv2.imshow("Warped Image", warp_img)
+
+    # Draw skeleton
+    skel_img = draw_skeleton(warp_img)
+    cv2.imshow("Skeleton Image", skel_img)
+
+    # Convert to polar Coordinates
+    polar_image = convert_to_polar(warp_img)
+    # cv2.imshow("Polar image", polar_image)
 
     return polar_image
+
 
 ## Helper function to draw lines on an image
 # @param image the image to draw on
