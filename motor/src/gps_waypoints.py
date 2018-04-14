@@ -2,7 +2,7 @@
 
 import rospy
 from std_msgs.msg import Float32
-from vn200.msg import vn_200_gps_soln
+from vn200.msg import vn_200_gps_soln, vn_200_ins_soln
 import math
 from collections import deque
 
@@ -12,15 +12,19 @@ waypoints = [[123.0, 456.0], [456.0, 123.0]]  # obviously replace these
 ourPos = [0.0, 0.0]
 ourDir = 0.0
 angle_deadzone = 10  # Change later
-turnspeed = .15
-straightspeed = .5
+turnspeed = .1	# 0.1 is alright, might be better to go slower for testing
+straightspeed = .1
 distance_deadzone = .000025
 
 
 def yaw_cb(msg):
     global ourDir
-    ourDir = (msg.data + 360) % 360
+    ourDir = (msg.data + 360) % 360 - 112
     #  print "you just got a letter", ourDir
+
+def ins_cb(msg):
+	global ourDir
+	ourDir = (msg.yaw_heading + 360) % 360 - 112
 
 
 def gps_cb(msg):
@@ -67,7 +71,14 @@ def driver():
     rospy.init_node('gps_waypoints', log_level=rospy.INFO)
 
     imu_sub = rospy.Subscriber("yaw_heading", Float32, yaw_cb)
-    gps_sub = rospy.Subscriber("vn_200_gps", vn_200_gps_soln, gps_cb)
+
+    #ins_sub = rospy.Subscriber("vn200_ins", vn_200_ins_soln, ins_cb)
+
+    	# Choose INS sub if you want to receive yaw_heading from INS
+    	# Choose IMU sub otherwise -- I.e IMU: filtered raw data & INS: Direct from factory
+    	# NOTE: Different angle offsets. Currently IMU has 112 degree offset
+
+    gps_sub = rospy.Subscriber("vn200_gps", vn_200_gps_soln, gps_cb)
 
     print "made subs"
 
