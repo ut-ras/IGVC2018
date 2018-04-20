@@ -13,87 +13,134 @@
 import cv2
 import numpy as np
 import timeit
+import matplotlib.pyplot as plt
+
+
+def compute_perspective_transform(binary_image):
+    # Define 4 source and 4 destination points = np.float32([[,],[,],[,],[,]])
+    shape = binary_image.shape[::-1]  # (width,height)
+    w = shape[0]
+    h = shape[1]
+    transform_src = np.float32([[250, 100], [0, 150], [w, h], [600, 100]])
+    transform_dst = np.float32([[0, 0], [0, h], [w, h], [w, 0]])
+    M = cv2.getPerspectiveTransform(transform_src, transform_dst)
+    return M
+
+
+def apply_perspective_transform(binary_image, M, plot=False):
+    warped_image = cv2.warpPerspective(
+        binary_image,
+        M, (binary_image.shape[1], binary_image.shape[0]),
+        flags=cv2.INTER_NEAREST)  # keep same size as input image
+    cv2.imshow('warp', warped_image)
+    if (plot):
+        # Ploting both images Binary and Warped
+        f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
+        ax1.set_title('Binary/Undistorted and Tresholded')
+        ax1.imshow(binary_image, cmap='gray')
+        ax2.set_title('Binary/Undistorted and Warped Image')
+        ax2.imshow(warped_image, cmap='gray')
+        plt.show()
+
+    return warped_image
+
 
 #Set margins for isolation of the color white
-sensitivity = 20									#variable sensitivity value (can be tuned further down the line)
-whiteLower = (0,0,255-sensitivity)
-whiteUpper = (255,sensitivity,255)
+sensitivity = 20  #variable sensitivity value (can be tuned further down the line)
+whiteLower = (0, 0, 255 - sensitivity)
+whiteUpper = (255, sensitivity, 255)
 
 #Read image
-start = timeit.default_timer()						#clock algorithm start
+start = timeit.default_timer()  #clock algorithm start
 img = cv2.imread('igvc_lanes.jpg')
-img = cv2.resize(img,(640,360))						#resize image to decrease overhead
+img = cv2.resize(img, (640, 360))  #resize image to decrease overhead
 #cv2.imshow('original',img)							#debugging
 
-# Create the basic black image 
-white_rec = np.zeros(img.shape, dtype = "uint8")
+# Create the basic black image
+white_rec = np.zeros(img.shape, dtype="uint8")
 # Draw a white, filled rectangle on the mask image
 cv2.rectangle(white_rec, (0, 100), (720, 500), (255, 255, 255), -1)
 
 #cv2.imshow('white rectangle',white_rec)			#debugging
 
-imgROI = cv2.bitwise_and(img,white_rec)				#get rid of the top part to decrease overhead (O(1))
+imgROI = cv2.bitwise_and(
+    img, white_rec)  #get rid of the top part to decrease overhead (O(1))
 #cv2.imshow('masked img',imgROI)					#debugging
 
-imgHSV = cv2.cvtColor(imgROI, cv2.COLOR_BGR2HSV)	#change color scheme from BGR to HSV for easier color isolation (time complexity O(N^3)))
+imgHSV = cv2.cvtColor(
+    imgROI, cv2.COLOR_BGR2HSV
+)  #change color scheme from BGR to HSV for easier color isolation (time complexity O(N^3)))
 
 # Create a image that filters out every color besides white
-mask = cv2.inRange(imgHSV, whiteLower, whiteUpper)	#time complexity estimate O(N^3)
+mask = cv2.inRange(imgHSV, whiteLower,
+                   whiteUpper)  #time complexity estimate O(N^3)
 
 #helper variables for masking the part of the image immediately in front of the robot
 rows = imgHSV.shape[0]
 cols = imgHSV.shape[1]
-offset = 50											#offset for drawing the polygon
-mask_immediate_front = np.array([[[cols/5, rows/2], [cols * 4/5, rows/2], [cols-offset, rows], [offset, rows]]], dtype = np.int32)
+offset = 50  #offset for drawing the polygon
+mask_immediate_front = np.array(
+    [[[cols / 5, rows / 2], [cols * 4 / 5, rows / 2], [cols - offset, rows],
+      [offset, rows]]],
+    dtype=np.int32)
 
-cv2.fillPoly(mask,mask_immediate_front,0)			#create the polygon on the mask
+cv2.fillPoly(mask, mask_immediate_front, 0)  #create the polygon on the mask
 #cv2.imshow('mask',mask)							#debugging
 
-res = cv2.bitwise_and(imgROI,imgROI, mask= mask)	#apply the mask to the pre-processed image (time complexity O(1))
-#cv2.imshow('res',res)								#debugging code
+res = cv2.bitwise_and(
+    imgROI, imgROI, mask=mask
+)  #apply the mask to the pre-processed image (time complexity O(1))
+cv2.imshow('res', res)  #debugging code
+
+warped_image = apply_perspective_transform(res,
+                                           compute_perspective_transform(res))
+
+#cv2.imshow('warp', warped_image)
 
 #Select hysteresis thresholds for Canny edge detection algorithm
 low_threshold = 100
 high_threshold = 200
 
 #run canny edge detection algorithm
-edges = cv2.Canny(res,low_threshold,high_threshold)	#notes: Convolutions using Fast Fourier Transform are O(n*log(n)).
-													#		For an m by n image, complexity is O(mn(log(mn))).
-													#		This is the bottleneck in the pipeline
+edges = cv2.Canny(
+    res, low_threshold, high_threshold
+)  #notes: Convolutions using Fast Fourier Transform are O(n*log(n)).
+#		For an m by n image, complexity is O(mn(log(mn))).
+#		This is the bottleneck in the pipeline
 #cv2.imshow('edges',edges)							#debugging code
 
 #Select parameters for probabilistic Hough lines transform
-rho = 1 											 # distance resolution in pixels of the Hough grid
-theta = np.pi/180 									 # angular resolution in radians of the Hough grid
-threshold = 15  									 # minimum number of votes (intersections in Hough grid cell)
-min_line_length = 20 								 # minimum number of pixels making up a line
-max_line_gap = 50  									 # maximum gap in pixels between connectable line segments
-line_image = np.copy(res) * 0  						 # creating a blank to draw lines on
+rho = 1  # distance resolution in pixels of the Hough grid
+theta = np.pi / 180  # angular resolution in radians of the Hough grid
+threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+min_line_length = 20  # minimum number of pixels making up a line
+max_line_gap = 50  # maximum gap in pixels between connectable line segments
+line_image = np.copy(res) * 0  # creating a blank to draw lines on
 
 # Run Hough on edge detected image
 # Output "lines" is an array containing endpoints of detected line segments **** NOTE: "Navigation" will use these data points ****
 lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]),
-            min_line_length, max_line_gap)
+                        min_line_length, max_line_gap)
 
-stop = timeit.default_timer()						#clock algorithm end
+stop = timeit.default_timer()  #clock algorithm end
 
 #for demo purposes...
 #iterate through to create the Hough lines on top of the data set returned by the Hough transform
-if(lines is not None):
-	for line in lines:
-		for x1,y1,x2,y2 in line:
-			cv2.line(line_image,(x1,y1),(x2,y2),(255,50,50),5)
+if (lines is not None):
+    for line in lines:
+        for x1, y1, x2, y2 in line:
+            cv2.line(line_image, (x1, y1), (x2, y2), (255, 50, 50), 5)
 
 #add the lines on top of the original image for display
 lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
 
 #cv2.imshow('hough image', res)							# debugging code
-cv2.imshow('Lane Detection', lines_edges)				# display original image with lanes detected and overlayed
+#cv2.imshow(
+#    'Lane Detection',
+#    lines_edges)  # display original image with lanes detected and overlayed
 
-time = str((stop-start)*1000)
+time = str((stop - start) * 1000)
 print(time + ' ms')
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
- 

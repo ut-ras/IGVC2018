@@ -1,33 +1,103 @@
-# IGVC
-Welcome to the UT RAS IGVC repo. This file will give installation/usage instructions. If you want to develop on this repo see our [contributing guide](other_file.md).
+# IGVC2018
+## Let's get started with our Gazebo Simulation!
+# <--------------- (Scroll down for Vision) --------------->
+## Navigation
 
-# Setup
+Here's some packages you need to install aside from ROS/Gazebo:
 
-First you need to download and install ros by following these two guides:
+Gmapping: ```sudo apt-get install ros-kinetic-slam-gmapping```\
+Turtlebot: ```sudo apt-get install ros-kinetic-turtlebot```\
+Map_server: ```sudo apt-get install ros-kinetic-map-server```\
+Amcl: ```sudo apt-get install ros-kinetic-amcl```\
+Move_base: ```sudo apt-get install ros-kinetic-move-base```
 
-1. [Install Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu) (If you're on 17.04 you'll need to [Install Lunar](http://wiki.ros.org/lunar/Installation/Ubuntu) instead)
-2. [Configure Environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
-
-Then clone our repo into the src folder:
+Run the following commands to setup your workspace:
 
 ```
-  cd ~/catkin_ws/src
-  git clone https://github.com/ut-ras/IGVC2018.git
-```
-
-To install dependencies for the vision package
-```
-cd ~/catkin_ws/src/IGVC2018
-sudo apt install $(grep -vE "^\s*#" depend  | tr "\n" " ")
-cd ~/catkin_ws/
+mkdir -p ~/mybot_ws/src
+cd ~/mybot_ws/src
+git clone -b simulation https://github.com/ut-ras/IGVC2018.git
+cd ..
 catkin_make
-source devel/setup.bash
-**replace the device_path parameter in the launch file with the correct id for your system**
 ```
 
-To run the vision package run each of the following in multiple terminal prompts
+Edit your bashrc file: ```gedit ~/.bashrc```
+
+Scroll down to the very end and add the following:
 ```
+source /opt/ros/kinetic/setup.bash
+source ~/mybot_ws/devel/setup.bash
+```
+
+Check that you have sourced properly:
+```echo $ROS_PACKAGE_PATH /home/youruser/catkin_ws/src:/opt/ros/kinetic/share```
+
+Mapping your first environment:
+
+```
+roslaunch mybot_gazebo mybot_world.launch
+roslaunch mybot_navigation gmapping_demo.launch
+roslaunch mybot_description mybot_rviz_gmapping.launch
+roslaunch mybot_navigation mybot_teleop.launch
+```
+
+Drive around until the map is deemed satisfactory…
+DOONT close the gazebo/rviz stuff yet:
+
+```
+rosrun map_server map_saver -f ~/mybot_ws/src/mybot_navigation/maps/test_map
+```
+
+Save rviz file if you want.
+It would go inside: ~/mybot_ws/src/mybot_description/rviz
+
+Steps to use AMCL package:
+
+```
+roslaunch mybot_gazebo mybot_world.launch
+roslaunch mybot_navigation amcl_demo.launch
+roslaunch mybot_description mybot_rviz_amcl.launch
+```
+
+Under Rviz tools at the top, click 2D Nav Goal then click and hold wherever you want!
+
+## Vision
+
+To test the visual processing within the simulation please create your workspace if you have not done so yet:
+
+```
+mkdir -p ~/mybot_ws/src
+cd ~/mybot_ws/src
+git clone -b simulation https://github.com/ut-ras/IGVC2018.git
+cd ..
+catkin_make
+```
+
+Next you'll want to edit your bashrc file: ```gedit ~/.bashrc```
+
+Scroll down to the very end and add the following:
+```
+source /opt/ros/kinetic/setup.bash
+source ~/mybot_ws/devel/setup.bash
+
+export GAZEBO_MODEL_PATH=${HOME}/.gazebo/models:${GAZEBO_MODEL_PATH}
+export GAZEBO_MODEL_PATH=${HOME}/mybot_ws/src/mybot_gazebo/models:$GAZEBO_MODEL_PATH
+```
+
+We have to build our models within Gazebo. To do this, run the simple script in the models folder:
+```
+cd ~/mybot_ws/src/IGVC2018/mybot_gazebo/models
+sudo ./install_models.sh
+```
+
+Run the following launch files:
+
+```
+roslaunch mybot_gazebo igvc_world.launch
+roslaunch mybot_description mybot_rviz.launch
 roslaunch vision camerafeed.launch
-rosrun rviz rviz
 ```
-On rviz add an image topic in the bar on the right and select the camera feed in the dropdown menu
+
+And now you're set! Feel free to play around with the camera angles and other parameters. This is primarily for testing vision software only. No path planning or cmd_vel commands are currently being published.
+
+**Spicy Tip:** Move the model vehicle to the inside of a lane to detect lanes on rviz.
