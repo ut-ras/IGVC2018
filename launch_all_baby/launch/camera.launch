@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find mybot_gazebo)/launch/igvc_world.launch"/>
+	<include file="$(find vision)/launch/camerafeed.launch"/>
+	<include file="$(find igvc_tf2)/launch/lane_broadcaster.launch"/>
+	<include file="$(find mybot_description)/launch/mybot_rviz.launch"/>
+</launch>

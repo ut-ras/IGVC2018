@@ -198,8 +198,8 @@ def new_process_img(image):
     cv2.imshow("Warped Image", warp_img)
 
     # Draw skeleton
-    skel_img = draw_skeleton(warp_img)
-    cv2.imshow("Skeleton Image", skel_img)
+    #skel_img = draw_skeleton(warp_img)
+    #cv2.imshow("Skeleton Image", skel_img)
 
     # Convert to polar Coordinates
     polar_image = convert_to_polar(warp_img)
@@ -314,11 +314,17 @@ def apply_perspective(image):
     ###
 
     # Set source points (trapezoidal)
+    # src = np.float32([
+    #     [(cols/2) - 0.125*cols, (rows/2) + 5],
+    #     [(cols/2) - 0.5*cols, (rows)],
+    #     [(cols/2) + 0.5*cols, (rows)],
+    #     [(cols/2) + 0.125*cols, (rows/2) + 5]])
+
     src = np.float32([
-        [(cols/2) - 0.125*cols, (rows/2) + 5],
-        [(cols/2) - 0.5*cols, (rows)],
-        [(cols/2) + 0.5*cols, (rows)],
-        [(cols/2) + 0.125*cols, (rows/2) + 5]])
+        [(cols/2) - 0.189873*cols, (rows/2)],
+        [(cols/2) - 0.5*cols, (rows) - 200],
+        [(cols/2) + 0.5*cols, (rows) - 200],
+        [(cols/2) + 0.189873*cols, (rows/2)]])
 
     # Set destination points -- What do you want to transform your image to? 
     # In this case skewed 3D -> Planar 2D
@@ -369,10 +375,10 @@ def image_callback(msg):
 
     # Convert ROS image to CV format
     cv_image = bridge.imgmsg_to_cv2(img, desired_encoding="passthrough")
-    cv2.imshow("Image window", process_img(cv_image))
+    cv2.imshow("Image window", new_process_img(cv_image))
 
     # Convert back to CV and publish
-    ros_image = bridge.cv2_to_imgmsg(process_img(cv_image), encoding="passthrough")
+    ros_image = bridge.cv2_to_imgmsg(new_process_img(cv_image), encoding="passthrough")
     log_image_pub.publish(ros_image)
 
     # If 'q' is detected, quit

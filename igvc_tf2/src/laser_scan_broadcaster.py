@@ -42,7 +42,9 @@ def broadcast_tf(msg):
 	euler = list(euler)
 
 	# Rotates the exact opposite of RAScal's orientation in order to stay fixed
-	euler[2] = euler[2] * -1
+	#euler[2] = euler[2] * -1
+	for i in range(3):
+		euler[i] *= -1
 
 	roll = euler[0]
 	pitch = euler[1]
@@ -60,7 +62,7 @@ def broadcast_tf(msg):
 	# Send the 1s and 0s
 	br.sendTransform(t)
 
-	print('I am working')
+	print('Roll: %.3g' % euler[0], 'Pitch: %.3g' % euler[1], 'Yaw: %.3g' % euler[2])
 
 	#print(updated_quat)
 	#print(odom.pose.pose.orientation.z)

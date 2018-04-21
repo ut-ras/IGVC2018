@@ -6,6 +6,4 @@
 	<node pkg="vision" name="lane_laser_publisher" type="laser_scan_publisher.py" output="screen">
 		<param name="frame_id" value="camera3"/>
 	</node>
-
-	<!-- <node name="laser_broadcaster" pkg="tf" type="static_transform_publisher" args="0.15 0 0.1 0 0 0 chassis lane_laser_frame 100"/> -->
 </launch>
